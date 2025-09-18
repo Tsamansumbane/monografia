@@ -14,7 +14,7 @@
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item active">
-      <a class="nav-link" href="index.php">
+      <a class="nav-link" href="{{route('admin.dashboard')}}">
         <i class="fas fa-fw fa-tachometer-alt"></i>
         <span>Dashboard</span></a>
     </li>
@@ -40,11 +40,17 @@
         <span>Monografia</span></a>
     </li>
 
-    <!--<li class="nav-item">
-      <a class="nav-link" href="equipament.php">
+    <li class="nav-item">
+        <a class="nav-link" href="{{route('whitelist.index')}}">
         <i class="fas fa-fw fa-chart-area"></i>
-        <span>Equipamento alocados</span></a>
-    </li> -->
+        <span>Whitelist</span></a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{{route('noticias.create')}}">
+        <i class="fas fa-fw fa-chart-area"></i>
+        <span>Novidades</span></a>
+    </li>
     <!--  <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
           <h6 class="collapse-header">Custom Components:</h6>
@@ -98,12 +104,11 @@
       </a>
       <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="register.php">Utilizador</a>
-          <a class="collapse-item" href="brand.php">Marca</a>
-          <a class="collapse-item" href="type.php">Tipo</a>
+          <a class="collapse-item" href="{{route('tipos.create')}}">Tipo</a>
+          <a class="collapse-item" href="#">Curso</a>
           <div class="collapse-divider"></div>
           <h6 class="collapse-header">Outros</h6>
-          <a class="collapse-item" href="role.php">Função</a>
+          <a class="collapse-item" href="#">Função</a>
         </div>
       </div>
     </li>
@@ -295,27 +300,31 @@
                   <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="mr-2 d-none d-lg-inline text-gray-600 small">
 
-              username
+                    {{auth()->user()->name}}
 
                     </span>
                     <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
                   </a>
                   <!-- Dropdown - User Information -->
                   <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                    @auth
                     <a class="dropdown-item" href="#">
                       <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                      Profile
+                      {{auth()->user()->name}}
                     </a>
-                    <a class="dropdown-item" href="#">
+                    @else
+                      <a href="{{ route('login.form')}}"></a>
+                    @endauth
+                    <!--<a class="dropdown-item" href="#">
                       <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                       Settings
                     </a>
                     <a class="dropdown-item" href="#">
                       <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
                       Activity Log
-                    </a>
+                    </a>-->
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                    <a class="dropdown-item" href="" data-toggle="modal" data-target="#logoutModal">
                       <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                       Logout
                     </a>
@@ -344,11 +353,11 @@
                 <span aria-hidden="true">×</span>
               </button>
             </div>
-            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+            <div class="modal-body">Tem a certeza que deseja terminar a sessao?</div>
             <div class="modal-footer">
               <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
 
-              <form action="logout.php" method="POST">
+              <form action="{{ route('login.logout') }}" method="GET">
 
                 <button type="submit" name="logout_btn" class="btn btn-primary">Logout</button>
 
