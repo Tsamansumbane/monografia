@@ -55,4 +55,6 @@ Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.st
 
 Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
 Route::post('/cursos', [CursoController::class, 'store'])->name('cursos.store');
+Route::delete('/cursos/{id}', [CursoController::class, 'destroy'])->name('cursos.destroy');
+Route::resource('cursos', CursoController::class);
 

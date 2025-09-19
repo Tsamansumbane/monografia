@@ -7,17 +7,14 @@ use App\Models\Curso;
 
 class CursoController extends Controller
 {
+    // Listar todos os cursos e mostrar a view create (principal)
     public function index()
     {
         $cursos = Curso::all();
-        return view('cursos.create', compact('cursos')); // Mantendo create como principal
+        return view('cursos.create', compact('cursos'));
     }
 
-    public function create()
-    {
-        return view('cursos.create'); // Opcional, mas podemos manter
-    }
-
+    // Armazenar novo curso
     public function store(Request $request)
     {
         $request->validate([
@@ -26,8 +23,37 @@ class CursoController extends Controller
             'minor2' => 'nullable',
         ]);
 
-        Curso::create($request->all());
+        $curso = Curso::create($request->all());
+        return response()->json(['success' => true, 'curso' => $curso]);
+    }
 
-        return response()->json(['success' => 'Curso adicionado com sucesso!']);
+    // Retorna os dados de um curso específico para edição
+    public function edit($id)
+    {
+        $curso = Curso::findOrFail($id);
+        return response()->json($curso);
+    }
+
+    // Atualiza os dados do curso
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nome' => 'required',
+            'minor1' => 'nullable',
+            'minor2' => 'nullable',
+        ]);
+
+        $curso = Curso::findOrFail($id);
+        $curso->update($request->all());
+
+        return response()->json(['success' => true, 'curso' => $curso]);
+    }
+
+    // Apaga um curso
+    public function destroy($id)
+    {
+        $curso = Curso::findOrFail($id);
+        $curso->delete();
+        return redirect()->back()->with('success', 'Curso apagado com sucesso!');
     }
 }
