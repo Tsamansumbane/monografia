@@ -7,6 +7,8 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\WhitelistController;
 use App\Http\Controllers\TipoNoticiaController;
+use App\Http\Controllers\NoticiaController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -39,11 +41,12 @@ Route::get('/whitelist', [WhitelistController::class, 'index'])->name('whitelist
 Route::post('/whitelist', [WhitelistController::class, 'store'])->name('whitelist.store')->middleware('auth');
 
 
-// Noticias e tipos
-Route::get('/tipos/create', [TipoNoticiaController::class, 'createTipo'])->name('tipos.create');
-Route::post('/tipos/create', [TipoNoticiaController::class, 'storeTipo'])->name('tipos.store');
+// Página que mostra a listagem + modal → GET
+Route::get('/tipos', [TipoNoticiaController::class, 'createTipo'])->name('tipos.create');
 
-Route::get('/noticias/create', [TipoNoticiaController::class, 'createNoticia'])->name('noticias.create');
-Route::post('/noticias/create', [TipoNoticiaController::class, 'storeNoticia'])->name('noticias.store');
+// Armazenar novo tipo → POST
+Route::post('/tipos', [TipoNoticiaController::class, 'storeTipo'])->name('tipos.store');
 
 
+Route::get('/noticias', [NoticiaController::class, 'index'])->name('noticias.index');
+Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');

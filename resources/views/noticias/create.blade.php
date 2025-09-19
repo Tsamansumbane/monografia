@@ -1,47 +1,39 @@
 @include('includes.header')
 @include('includes.navbar')
 
-<div class="modal fade" id="whitelistModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<!-- Modal Adicionar Notícia -->
+<div class="modal fade" id="addNoticiaModal" tabindex="-1" role="dialog" aria-labelledby="addNoticiaLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Adicionar</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <form id="whitelistForm" action="{{ route('noticias.store') }}" method="POST">
+            <form id="noticia_form" action="#" method="POST">
                 @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNoticiaLabel">Adicionar Anúncio</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
                 <div class="modal-body">
-
-              
-
                     <div class="form-group">
                         <label>Tipo</label>
-                        <select class="form-select" id="tipo_id" name="tipo_id" required>
-                        <option value="" selected disabled>Selecione um tipo</option>
-                        @foreach ($tipos as $tipo)
-                            <option value="{{ $tipo->id }}">{{ $tipo->nome }}</option>
-                        @endforeach
-            </select>
-        
-                    </div>
-                    <div class="form-group">
-                        <label>Noticia</label>
-                        <textarea class="form-control" id="descricao" name="descricao" rows="4" required></textarea>
-        
+                        <select name="tipo_id" class="form-control" required>
+                            <option value="">Selecione um tipo</option>
+                            @foreach ($tipos as $tipo)
+                                <option value="{{ $tipo->id }}">{{ $tipo->nome }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
+                    <div class="form-group">
+                        <label>Nome do Anúncio</label>
+                        <input type="text" name="nome" class="form-control" placeholder="Nome do anúncio" required>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button type="submit" class="btn btn-primary" id="submitButton">
-                        Registar
-                        <span id="loadingSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-                    </button>
+                    <button type="submit" class="btn btn-primary">Salvar Anúncio</button>
                 </div>
             </form>
         </div>
@@ -49,49 +41,33 @@
 </div>
 
 <div class="container-fluid">
-    <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#whitelistModal">
-                    Adicionar noticia
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addNoticiaModal">
+                    Adicionar Anúncio
                 </button>
             </h6>
         </div>
+
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered" id="noticiasTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Novidade</th>
-                            <th>EDIT</th>
-                            <th>DELETE</th>
+                            <th>Tipo</th>
+                            <th>Nome</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {{-- Iterar sobre os dados da whitelist --}}
-                    
-                   
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    
-                                <td>
-                                    <form action="#" method="GET">
-                                        <button type="submit" class="btn btn-success">EDITAR</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    <form action="#" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">APAGAR</button>
-                                    </form>
-                                </td>
-                            </tr>
-                      
-                       
+                        @foreach ($noticias as $key => $item)
+                        <tr>
+                            <td>{{ ++$key }}</td>
+                            <td>{{ $item->tipo->nome }}</td>
+                            <td>{{ $item->nome }}</td>
+                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -103,15 +79,25 @@
 @include('includes.footer')
 
 <script>
-    @if (session('modal_open'))
-        const modal = new bootstrap.Modal(document.getElementById('whitelistModal'));
-        modal.show();
-    @endif
+$(document).ready(function() {
+    $('#noticia_form').submit(function(event) {
+        event.preventDefault();
+        var formData = new FormData(this);
 
-    document.getElementById('whitelistForm').onsubmit = function() {
-        const button = document.getElementById('submitButton');
-        const spinner = document.getElementById('loadingSpinner');
-        button.disabled = true;
-        spinner.style.display = 'inline-block';
-    };
+        $.ajax({
+            url: '{{ route('noticias.store') }}',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                console.log('Anúncio salvo: ', response);
+                location.reload();
+            },
+            error: function(err) {
+                console.error('Erro: ', err);
+            }
+        });
+    });
+});
 </script>

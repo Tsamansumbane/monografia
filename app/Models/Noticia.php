@@ -9,7 +9,7 @@ class Noticia extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['tipo_id', 'descricao'];
+    protected $fillable = ['tipo_id', 'nome'];
 
     public function tipo()
     {

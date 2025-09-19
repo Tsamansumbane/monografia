@@ -11,8 +11,9 @@ class Tipo extends Model
 
     protected $fillable = ['nome'];
 
+    // Se quiseres relacionamento inverso com Noticia
     public function noticias()
     {
-        return $this->hasMany(Noticia::class);
+        return $this->hasMany(\App\Models\Noticia::class);
     }
 }
