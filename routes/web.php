@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\WhitelistController;
 use App\Http\Controllers\TipoNoticiaController;
 use App\Http\Controllers\NoticiaController;
+use App\Http\Controllers\CursoController;
 
 
 /*
@@ -50,3 +51,8 @@ Route::post('/tipos', [TipoNoticiaController::class, 'storeTipo'])->name('tipos.
 
 Route::get('/noticias', [NoticiaController::class, 'index'])->name('noticias.index');
 Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');
+
+
+Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
+Route::post('/cursos', [CursoController::class, 'store'])->name('cursos.store');
+

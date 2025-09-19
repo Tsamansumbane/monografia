@@ -9,10 +9,5 @@ class Curso extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nome'];
-
-    public function noticias()
-    {
-        return $this->hasMany(Curso::class);
-    }
+    protected $fillable = ['nome', 'minor1', 'minor2'];
 }
