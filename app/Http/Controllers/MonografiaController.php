@@ -10,48 +10,44 @@ class MonografiaController extends Controller
 {
     public function index()
     {
-
         $monografias = Monografia::get();
-
         return view('monografias.index', compact(['monografias']));
     }
 
-
     public function store(Request $request)
     {
-
-
         $ficheiro = request()->file('choosefile');
-        $storage_pah="/monografias";
-        $final_file_name="";
-        $status=false;
+        $storage_path = "/monografias";
+        $final_file_name = "";
+        $status = false;
 
         if ($request->hasFile('choosefile')) {
-
             $file = $request->choosefile;
             $file_extension = $file->getClientOriginalExtension();
             $file_name = Str::random(5);
             $final_file_name = time() . "$file_name.$file_extension";
 
-            $file->move(public_path($storage_pah), $final_file_name);
+            $file->move(public_path($storage_path), $final_file_name);
         }
 
-        $newMonogrfia = Monografia::create([
+        $newMonografia = Monografia::create([
             'curso' => $request->curso,
-            'ficheiro' => $storage_pah."/".$final_file_name
+            'ficheiro' => $storage_path . "/" . $final_file_name
         ]);
 
-        if(!empty($newMonogrfia)){
-
-            $message="Documento carregado com sucesso";
-            $status=true;
-
-        }else{
-
-            $message="Ocorreu um erro ao tentar carregar documento.";
-
+        if(!empty($newMonografia)){
+            $message = "Documento carregado com sucesso";
+            $status = true;
+        } else {
+            $message = "Ocorreu um erro ao tentar carregar documento.";
         }
 
-        return response()->json(['status'=>$status,'message'=>$message],200);
+        // Retorna também o curso para atualizar a tabela dinamicamente
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'file' => $final_file_name,
+            'curso' => $request->curso
+        ], 200);
     }
 }
