@@ -9,5 +9,14 @@ class Monografia extends Model
 {
     use HasFactory;
 
-    protected $guarded=[];
+    protected $guarded = [];
+
+    public function curso() {
+        return $this->belongsTo(Curso::class);
+    }
+
+    public function minor() {
+        return $this->belongsTo(Minor::class);
+    }
 }
+

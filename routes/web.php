@@ -27,7 +27,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::prefix('monografias')->name('monografias.')->group(function () {
     Route::get('/', [MonografiaController::class, 'index'])->name('index')->middleware('auth');
     Route::post('/store', [MonografiaController::class, 'store'])->name('store')->middleware('auth');
+    Route::get('/minors/{curso_id}', [MonografiaController::class, 'getMinors'])->name('minors');
 });
+
 
 Route::get('/', [MonografiaController::class, 'index'])->name('monografias')->middleware('auth');
 Route::view('/login', 'login.form')->name('login.form');
@@ -53,8 +55,7 @@ Route::get('/noticias', [NoticiaController::class, 'index'])->name('noticias.ind
 Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');
 
 
-Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
-Route::post('/cursos', [CursoController::class, 'store'])->name('cursos.store');
-Route::delete('/cursos/{id}', [CursoController::class, 'destroy'])->name('cursos.destroy');
-Route::resource('cursos', CursoController::class);
+Route::get('/cursos', [CursoController::class,'index'])->name('cursos.index');
+Route::post('/cursos', [CursoController::class,'store'])->name('cursos.store');
+
 

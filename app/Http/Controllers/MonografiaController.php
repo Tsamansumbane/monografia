@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Monografia;
+use App\Models\Curso;
+use App\Models\Minor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -10,44 +12,40 @@ class MonografiaController extends Controller
 {
     public function index()
     {
-        $monografias = Monografia::get();
-        return view('monografias.index', compact(['monografias']));
+        $monografias = Monografia::with(['curso','minor'])->get();
+        $cursos = Curso::all();
+        return view('monografias.index', compact('monografias','cursos'));
+    }
+
+    // AJAX para retornar minors de um curso
+    public function getMinors($curso_id)
+    {
+        $minors = Minor::where('curso_id', $curso_id)->get();
+        return response()->json($minors);
     }
 
     public function store(Request $request)
     {
-        $ficheiro = request()->file('choosefile');
-        $storage_path = "/monografias";
-        $final_file_name = "";
-        $status = false;
-
-        if ($request->hasFile('choosefile')) {
-            $file = $request->choosefile;
-            $file_extension = $file->getClientOriginalExtension();
-            $file_name = Str::random(5);
-            $final_file_name = time() . "$file_name.$file_extension";
-
-            $file->move(public_path($storage_path), $final_file_name);
-        }
-
-        $newMonografia = Monografia::create([
-            'curso' => $request->curso,
-            'ficheiro' => $storage_path . "/" . $final_file_name
+        $request->validate([
+            'curso_id' => 'required|exists:cursos,id',
+            'minor_id' => 'required|exists:minors,id',
+            'choosefile' => 'required|file'
         ]);
 
-        if(!empty($newMonografia)){
-            $message = "Documento carregado com sucesso";
-            $status = true;
-        } else {
-            $message = "Ocorreu um erro ao tentar carregar documento.";
-        }
+        $file = $request->choosefile;
+        $fileName = time().'_'.Str::random(5).'.'.$file->getClientOriginalExtension();
+        $file->move(public_path('/monografias'), $fileName);
 
-        // Retorna também o curso para atualizar a tabela dinamicamente
+        $monografia = Monografia::create([
+            'curso_id' => $request->curso_id,
+            'minor_id' => $request->minor_id,
+            'ficheiro' => '/monografias/'.$fileName
+        ]);
+
         return response()->json([
-            'status' => $status,
-            'message' => $message,
-            'file' => $final_file_name,
-            'curso' => $request->curso
-        ], 200);
+            'status' => true,
+            'message' => 'Monografia registrada com sucesso!',
+            'monografia' => $monografia
+        ]);
     }
 }

@@ -1,47 +1,62 @@
 @include('includes.header')
 @include('includes.navbar')
 
-<div class="modal fade" id="addadminprofile" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
+<!-- Modal Adicionar Monografia -->
+<div class="modal fade" id="addadminprofile" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Carregar</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title">Carregar Monografia</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
 
             <form id="monografia_form" action="#" method="POST" enctype="multipart/form-data">
-                <input type="hidden" value="{{ csrf_token() }}" name="_token" class="form-control">
-
+                @csrf
                 <div class="modal-body">
+                    <!-- Curso -->
                     <div class="form-group">
                         <label>Curso</label>
-                        <input type="text" name="curso" class="form-control" id="curso" placeholder="Introduz o curso">
+                        <select name="curso_id" id="curso_id" class="form-control" required>
+                            <option value="">Selecione um curso</option>
+                            @foreach($cursos as $curso)
+                                <option value="{{ $curso->id }}">{{ $curso->nome }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
+                    <!-- Minor dependente -->
+                    <div class="form-group">
+                        <label>Minor</label>
+                        <select name="minor_id" id="minor_id" class="form-control" required>
+                            <option value="">Selecione primeiro o curso</option>
+                        </select>
+                    </div>
+
+                    <!-- Ficheiro -->
                     <div class="form-group">
                         <label>Ficheiro</label>
-                        <input type="file" class="form-control" name="choosefile" id="choosefile">
+                        <input type="file" class="form-control" name="choosefile" required>
                     </div>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button type="submit" name="save_monografia" class="btn btn-primary">Registar</button>
+                    <button type="submit" class="btn btn-primary">Registar</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Tabela Monografias -->
 <div class="container-fluid">
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addadminprofile">
-                    Registar monografia
+                    Registar Monografia
                 </button>
             </h6>
         </div>
@@ -53,6 +68,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Curso</th>
+                            <th>Minor</th>
                             <th>Ficheiro</th>
                             <th>EDIT</th>
                             <th>DELETE</th>
@@ -62,19 +78,18 @@
                         @foreach ($monografias as $key => $item)
                         <tr>
                             <td>{{ ++$key }}</td>
-                            <td>{{ $item->curso }}</td>
+                            <td>{{ $item->curso->nome ?? '' }}</td>
+                            <td>{{ $item->minor->nome ?? '' }}</td>
+                            <td><a href="{{ url($item->ficheiro) }}" target="_blank">Baixar</a></td>
                             <td>
-                                <a href="{{ url($item->ficheiro) }}" target="_blank">Baixar</a>
-                            </td>
-                            <td>
-                                <form action="..." method="post">
-                                    <input type="hidden" name="edit_id" value="{{$item->ficheiro}}">
-                                    <button type="submit" name="edit_btn" class="btn btn-success">EDITAR</button>
+                                <form action="#" method="post">
+                                    <input type="hidden" name="edit_id" value="{{ $item->id }}">
+                                    <button type="submit" class="btn btn-success">EDITAR</button>
                                 </form>
                             </td>
                             <td>
-                                <form action="..." method="post">
-                                    <button type="submit" name="delete_btn" class="btn btn-danger">APAGAR</button>
+                                <form action="#" method="post">
+                                    <button type="submit" class="btn btn-danger">APAGAR</button>
                                 </form>
                             </td>
                         </tr>
@@ -91,6 +106,28 @@
 
 <script>
 $(document).ready(function() {
+
+    // Carregar minors ao selecionar curso
+    $('#curso_id').change(function() {
+        var cursoId = $(this).val();
+        if(cursoId) {
+            $.ajax({
+                url: '/monografias/minors/' + cursoId,
+                type: 'GET',
+                success: function(minors) {
+                    var options = '<option value="">Selecione um minor</option>';
+                    minors.forEach(function(minor){
+                        options += `<option value="${minor.id}">${minor.nome}</option>`;
+                    });
+                    $('#minor_id').html(options);
+                }
+            });
+        } else {
+            $('#minor_id').html('<option value="">Selecione primeiro o curso</option>');
+        }
+    });
+
+    // Submeter monografia
     $('#monografia_form').submit(function(event) {
         event.preventDefault();
 
@@ -103,30 +140,28 @@ $(document).ready(function() {
             contentType: false,
             processData: false,
             success: function(response) {
-
                 if(response.status) {
-                    // Fechar modal e limpar formulário
                     $('#monografia_form')[0].reset();
                     $('#addadminprofile').modal('hide');
 
-                    // Adicionar linha na tabela
+                    // Adicionar nova linha na tabela
                     var tableBody = $('#dataTable tbody');
                     var rowCount = tableBody.find('tr').length + 1;
-
                     var newRow = `
                         <tr>
                             <td>${rowCount}</td>
-                            <td>${response.curso}</td>
-                            <td><a href="/monografias/${response.file}" target="_blank">Baixar</a></td>
+                            <td>${response.monografia.curso.nome}</td>
+                            <td>${response.monografia.minor.nome}</td>
+                            <td><a href="${response.monografia.ficheiro}" target="_blank">Baixar</a></td>
                             <td>
-                                <form action="..." method="post">
-                                    <input type="hidden" name="edit_id" value="${response.file}">
-                                    <button type="submit" name="edit_btn" class="btn btn-success">EDITAR</button>
+                                <form action="#" method="post">
+                                    <input type="hidden" name="edit_id" value="${response.monografia.id}">
+                                    <button type="submit" class="btn btn-success">EDITAR</button>
                                 </form>
                             </td>
                             <td>
-                                <form action="..." method="post">
-                                    <button type="submit" name="delete_btn" class="btn btn-danger">APAGAR</button>
+                                <form action="#" method="post">
+                                    <button type="submit" class="btn btn-danger">APAGAR</button>
                                 </form>
                             </td>
                         </tr>
@@ -142,7 +177,6 @@ $(document).ready(function() {
                 alert('Ocorreu um erro: ' + error);
             }
         });
-
     });
 });
 </script>
